@@ -1,0 +1,40 @@
+# 禁止所有爬虫访问整个站点
+User-agent: *
+Disallow: /
+
+# 单独列出常见爬虫（双保险）
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Googlebot-Image
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: Slurp   # Yahoo
+Disallow: /
+
+User-agent: DuckDuckBot
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: Yandex
+Disallow: /
+
+User-agent: Sogou spider
+Disallow: /
+
+User-agent: 360Spider
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PetalBot  # 华为
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

@@ -25,9 +25,30 @@
       -o-object-fit: inherit !important;
          object-fit: inherit !important;
     }
+
+    @keyframes zoomOut {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.5);
+        opacity: 0.9;
+      }
+
+      100% {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
+
+    .animate-zoomOut {
+      animation: zoomOut 1s ease-in-out forwards;
+    }
   </style>
-  <script type="module" crossorigin src="./assets/index-DIt1jfAu.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DxlKtaoq.css">
+  <script type="module" crossorigin src="./assets/index-BarRJIuQ.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Gy66AQde.css">
 </head>
 
 <body>

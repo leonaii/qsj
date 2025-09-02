@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>🚀 枪神纪官网 - 老田杂货铺发布页</title>
+  <meta name="description" content="🚀 枪神纪官网 - 老田杂货铺发布页" />
+  <style>
+    /* =========================
+       基础与主题变量
+    ========================== */
+    :root{
+      --bg-1: #0b1020;
+      --bg-2: #0e1326;
+      --bg-3: #0c0f1d;
+      --text: #dfe7ff;
+      --muted: #9aa4c7;
+      --glass: rgba(255,255,255,0.08);
+      --glass-2: rgba(255,255,255,0.12);
+      --stroke: rgba(255,255,255,0.16);
+      --accent: #7c3aed; /* 可在下方 UI 切换 */
+      --accent-2: #22d3ee;
+      --radius: 18px;
+      --card-radius: 16px;
+      --shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    
+    .light:root{
+      --bg-1: #f7f7fb;
+      --bg-2: #ffffff;
+      --bg-3: #f2f4ff;
+      --text: #1a2142;
+      --muted: #4b587c;
+      --glass: rgba(0,0,0,0.06);
+      --glass-2: rgba(0,0,0,0.08);
+      --stroke: rgba(0,0,0,0.12);
+      --shadow: 0 12px 30px rgba(16,24,40,0.08);
+    }
+
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; padding:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, PingFang SC, Hiragino Sans GB, Microsoft YaHei, Helvetica Neue, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background: radial-gradient(1200px 800px at 10% -10%, rgba(124,58,237,0.18), transparent 55%),
+                          radial-gradient(1000px 700px at 110% 0%, rgba(34,211,238,0.16), transparent 60%),
+                          linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      overflow-x:hidden;
+    }
+
+    /* 动态背景粒子层（Canvas 在下） */
+    #bg-canvas{ position: fixed; inset: 0; z-index: 0; filter: saturate(1.2) contrast(1.05); }
+
+    /* 纹理与网格叠层 */
+    .grid-overlay{
+      pointer-events: none; position: fixed; inset: 0; z-index: 1; opacity: .25;
+      background-image: 
+        linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 60px 60px, 60px 60px;
+      mask-image: radial-gradient(1200px 700px at 50% 10%, black, transparent 85%);
+    }
+    .noise{ position: fixed; inset:0; z-index: 2; opacity:.06; mix-blend-mode: soft-light; background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.55"/></svg>'); }
+
+    /* 页面容器 */
+    .wrap{ position: relative; z-index: 3; max-width: 1100px; margin: clamp(28px,4vw,48px) auto 80px; padding: 0 20px; }
+
+    /* 顶部栏 */
+    .topbar{
+      display:flex; align-items:center; justify-content: space-between; gap:12px; margin-bottom: 22px;
+    }
+    .brand{
+      width: 100%;
+      display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--glass-2), transparent); border:1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .brand .logo{
+      width:42px; height:42px; border-radius:12px; display:grid; place-items:center; font-size:22px; 
+      background: radial-gradient(80% 100% at 30% 20%, var(--accent), transparent 60%),
+                  linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
+      border:1px solid var(--stroke);
+      box-shadow: 0 10px 20px rgba(124,58,237,0.35), inset 0 0 24px rgba(124,58,237,0.25);
+    }
+    .brand h1{
+      margin:0; font-size: clamp(20px, 2.2vw, 28px); letter-spacing: .6px; font-weight: 800;
+      background: linear-gradient(90deg, var(--text), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    .brand p{ margin:0; font-size: 12px; color: var(--muted); }
+
+    /* 控件区域 */
+    .controls{ display:flex; align-items:center; gap:10px; flex-wrap: wrap; }
+    .ctrl{
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius: 12px; border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--glass), transparent); backdrop-filter: blur(8px); box-shadow: var(--shadow);
+    }
+    .ctrl input[type="search"]{
+      all: unset; width: 220px; font-size: 14px; color: var(--text);
+    }
+    .btn{ cursor:pointer; user-select:none; padding:10px 12px; border-radius:12px; border:1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--glass-2), transparent); color: var(--text); font-size: 14px; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); box-shadow: 0 12px 24px rgba(0,0,0,.25); border-color: color-mix(in oklab, var(--accent), white 35%); }
+
+    .color-dots{ display:flex; gap:8px; padding:10px 12px; border:1px solid var(--stroke); border-radius:12px; background: linear-gradient(180deg, var(--glass), transparent); backdrop-filter: blur(8px); box-shadow: var(--shadow); }
+    .dot{ width:18px; height:18px; border-radius: 99px; cursor:pointer; border:1px solid rgba(255,255,255,.35); box-shadow: inset 0 0 8px rgba(255,255,255,.18), 0 4px 10px rgba(0,0,0,.25); }
+
+    /* 英雄区 */
+    .hero{
+      position: relative; border:1px solid var(--stroke); border-radius: calc(var(--radius) + 6px);
+      padding: clamp(20px, 3vw, 28px); margin: 16px 0 26px;
+      background: linear-gradient(180deg, var(--glass), transparent);
+      box-shadow: var(--shadow); backdrop-filter: blur(10px);
+      overflow: hidden;
+    }
+    .hero h2{ margin: 0 0 8px; font-size: clamp(22px,2.6vw,34px); letter-spacing: .6px; font-weight: 900; }
+    .hero h2 span{ background: linear-gradient(90deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .hero p{ margin:0; color: var(--muted); }
+    .hero .glow{ position:absolute; width: 260px; height:260px; right: -50px; top: -60px; border-radius: 50%; filter: blur(40px) saturate(1.2);
+      background: radial-gradient(closest-side, color-mix(in oklab, var(--accent), white 15%), transparent 70%);
+      opacity:.35; pointer-events:none; animation: float 10s ease-in-out infinite alternate;
+    }
+    @keyframes float{ from{ transform: translateY(-8px) } to{ transform: translateY(8px) } }
+
+    /* 链接网格 */
+    .grid{ display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .link-card{
+      grid-column: span 12; padding: 16px; border-radius: var(--card-radius); border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0.03));
+      backdrop-filter: blur(10px); box-shadow: var(--shadow); position: relative; overflow: hidden;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    @media (min-width: 540px){ .link-card{ grid-column: span 6; } }
+    @media (min-width: 900px){ .link-card{ grid-column: span 4; } }
+
+    .link-card:hover{ transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.35); border-color: color-mix(in oklab, var(--accent), white 40%); }
+    .link-card:active{ transform: translateY(-1px) scale(.995); }
+
+    .link-head{ display:flex; align-items:center; gap:12px; margin-bottom: 10px; }
+    .ico{
+      width:36px; height:36px; border-radius: 12px; display:grid; place-items:center; border:1px solid var(--stroke);
+      background: linear-gradient(160deg, rgba(255,255,255,.24), rgba(255,255,255,.06));
+      box-shadow: inset 0 0 22px rgba(255,255,255,.16), 0 6px 14px rgba(0,0,0,.25);
+      flex: 0 0 auto;
+    }
+    .title{ font-weight: 800; letter-spacing: .2px; }
+    .tag{ margin-left:auto; font-size: 12px; padding:4px 8px; border-radius: 999px; border:1px solid var(--stroke); color: var(--text);
+          background: linear-gradient(180deg, var(--glass), transparent); }
+    .desc{ margin:0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .actions{ display:flex; gap:10px; margin-top: 12px; }
+
+    .a-btn{ flex:0 0 auto; cursor:pointer; display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius: 12px; border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, var(--glass-2), transparent); color:var(--text); text-decoration:none; font-size: 14px; }
+    .a-btn:hover{ border-color: color-mix(in oklab, var(--accent), white 35%); }
+
+    /* 页脚 */
+    footer{
+      margin-top: 32px; padding: 14px; text-align: center; color: var(--muted); font-size: 12px;
+      border:1px solid var(--stroke); border-radius: calc(var(--radius) + 6px);
+      background: linear-gradient(180deg, var(--glass), transparent); backdrop-filter: blur(8px); box-shadow: var(--shadow);
+    }
+
+    /* 小动画 */
+    @keyframes shine { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="noise"></div>
+
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">🚀</div>
+        <div>
+          <h1 id="site-title">枪神纪官网</h1>
+          <p id="site-subtitle">-</p>
+        </div>
+      </div>
+    </div>
+   
+    <section class="hero">
+      <div class="controls" >
+        <div class="ctrl" title="搜索链接 (支持标题/描述)">
+          🔎 <input id="q" type="search" placeholder="搜索链接…" />
+        </div>
+        <button class="btn" id="themeBtn" title="切换明暗主题">🌓 主题</button>
+        <div class="color-dots" title="切换主色">
+          <div class="dot" data-color="#7c3aed" style="background:conic-gradient(from 0deg, #7c3aed, #22d3ee, #7c3aed);"></div>
+          <div class="dot" data-color="#22d3ee" style="background:conic-gradient(from 0deg, #22d3ee, #a78bfa, #22d3ee);"></div>
+          <div class="dot" data-color="#06b6d4" style="background:conic-gradient(from 0deg, #06b6d4, #34d399, #06b6d4);"></div>
+          <div class="dot" data-color="#f59e0b" style="background:conic-gradient(from 0deg, #f59e0b, #ef4444, #f59e0b);"></div>
+          <div class="dot" data-color="#ef4444" style="background:conic-gradient(from 0deg, #ef4444, #f59e0b, #ef4444);"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="linksGrid" aria-live="polite"></section>
+
+    <footer>
+      <div>Made with ♥ · 老田杂货铺 · 实时更新站点</div>
+      <div style="margin-top:6px;">最后更新：<span id="lastUpdate"></span></div>
+    </footer>
+  </div>
+
+  <script>
+    const CONFIG = {
+      title: '枪神纪官网 - 老田发布页',
+      subtitle: '收录最新地址与常用入口',
+      links: [
+        { title: '主站 · 官网', url: 'https://www.laotian.xyz/', desc: '官方入口（推荐）', tag: '主' },
+        { title: '备用 · 官网', url: 'https://qsj.netlify.app/', desc: '访问受限时使用', tag: '备' },
+        { title: '墙外站 A', url: 'https://laotian.edgeone.app/', desc: '全球加速线路', tag: '墙' },
+        { title: '墙外站 B', url: 'https://qsjqq.vercel.app/', desc: '全球加速线路', tag: '墙' },
+        { title: '九五卡网', url: 'http://s.mrw.so/8qcDT', desc: '九五卡网', tag: '卡网' },
+        { title: '右右卡网', url: 'https://shuaitian.s8fa.cn', desc: '右右卡网', tag: '卡网' }
+      ]
+    };
+
+    document.getElementById('site-title').textContent = CONFIG.title;
+    document.getElementById('site-subtitle').textContent = CONFIG.subtitle;
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+
+    const grid = document.getElementById('linksGrid');
+    const makeIcon = (title) => {
+      const letter = (title||'').trim().charAt(0).toUpperCase() || 'L';
+      return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l3 3-3 3-3-3 3-3Zm0 14l3 3-3 3-3-3 3-3Z" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="5.5" stroke="currentColor" stroke-width="1.2"/></svg>`;
+    }
+
+    function render(list){
+      grid.innerHTML = '';
+      list.forEach((item, idx) => {
+        const card = document.createElement('article');
+        card.className = 'link-card';
+        card.setAttribute('tabindex','0');
+        card.innerHTML = `
+          <div class="link-head">
+            <div class="ico" aria-hidden="true">${makeIcon(item.title)}</div>
+            <div class="title">${escapeHtml(item.title)}</div>
+            ${item.tag ? `<div class="tag">${escapeHtml(item.tag)}</div>` : ''}
+          </div>
+          <p class="desc">${escapeHtml(item.desc || '')}</p>
+          <div class="actions">
+            <a class="a-btn" href="${encodeURI(item.url)}" target="_blank" rel="noopener noreferrer">⚡ 访问</a>
+            <button class="a-btn copy" data-url="${encodeURI(item.url)}">📋 复制</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str){
+      return (str||'').replace(/[&<>\"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[s]));
+    }
+
+    render(CONFIG.links);
+
+    const q = document.getElementById('q');
+    q.addEventListener('input', (e) => {
+      const key = e.target.value.trim().toLowerCase();
+      const filtered = CONFIG.links.filter(x => (x.title+" "+(x.desc||'')+" "+(x.tag||'')).toLowerCase().includes(key));
+      render(filtered);
+    });
+
+    grid.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.copy');
+      if(!btn) return;
+      const url = decodeURI(btn.dataset.url);
+      try{
+        await navigator.clipboard.writeText(url);
+        btn.textContent = '✅ 已复制';
+        setTimeout(()=> btn.textContent = '📋 复制', 1200);
+      }catch(err){
+        alert('复制失败，请手动复制：\n' + url);
+      }
+    });
+
+    const themeBtn = document.getElementById('themeBtn');
+    const applyTheme = (mode) => {
+      if(mode !== 'light') document.documentElement.classList.add('light');
+      else document.documentElement.classList.remove('light');
+      localStorage.setItem('theme', mode);
+    }
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme) applyTheme(savedTheme);
+    themeBtn.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('theme', !isLight ? 'light':'dark');
+    });
+
+    document.querySelectorAll('.dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        const color = dot.dataset.color;
+        document.documentElement.style.setProperty('--accent', color);
+        localStorage.setItem('accent', color);
+      });
+    });
+    const savedAccent = localStorage.getItem('accent');
+    if(savedAccent) document.documentElement.style.setProperty('--accent', savedAccent);
+
+    // 背景：粒子网络（纯原生，无依赖）
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let w, h, dpr, particles;
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.width = Math.floor(innerWidth * dpr);
+      h = canvas.height = Math.floor(innerHeight * dpr);
+      canvas.style.width = innerWidth + 'px';
+      canvas.style.height = innerHeight + 'px';
+      initParticles();
+    }
+
+    function initParticles(){
+      const count = Math.round(Math.min(160, (innerWidth * innerHeight) / 14000));
+      particles = Array.from({length: count}, () => ({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        vx: (Math.random()-0.5)*0.25*dpr,
+        vy: (Math.random()-0.5)*0.25*dpr,
+        r: Math.random()*1.6 + 0.4
+      }));
+    }
+
+    function step(){
+      ctx.clearRect(0,0,w,h);
+      // 背景渐变光
+      const grad = ctx.createLinearGradient(0,0,w,h);
+      grad.addColorStop(0, hexToRgba(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), 0.12));
+      grad.addColorStop(1, 'rgba(34,211,238,0.08)');
+      ctx.fillStyle = grad; ctx.fillRect(0,0,w,h);
+
+      // 粒子
+      ctx.globalCompositeOperation = 'lighter';
+      for(const p of particles){
+        p.x += p.vx; p.y += p.vy;
+        if(p.x < 0 || p.x > w) p.vx *= -1;
+        if(p.y < 0 || p.y > h) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,0.7)';
+        ctx.fill();
+      }
+
+      // 连接线
+      for(let i=0;i<particles.length;i++){
+        for(let j=i+1;j<particles.length;j++){
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y; const dist = Math.hypot(dx,dy);
+          if(dist < 120 * dpr){
+            ctx.strokeStyle = 'rgba(255,255,255,' + (0.14 - dist/(120*dpr)*0.14) + ')';
+            ctx.lineWidth = 0.7 * dpr; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      requestAnimationFrame(step);
+    }
+
+    function hexToRgba(hex, alpha){
+      const c = hex.replace('#','');
+      const bigint = parseInt(c.length===3 ? c.split('').map(x=>x+x).join('') : c, 16);
+      const r = (bigint >> 16) & 255, g = (bigint >> 8) & 255, b = bigint & 255;
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+    requestAnimationFrame(step);
+  </script>
+</body>
+</html>

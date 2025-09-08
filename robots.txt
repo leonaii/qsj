@@ -33,7 +33,7 @@ Disallow: /
 User-agent: Bytespider
 Disallow: /
 
-User-agent: PetalBot  # 华为
+User-agent: PetalBot
 Disallow: /
 
 User-agent: SemrushBot

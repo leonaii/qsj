@@ -12,7 +12,7 @@ Disallow: /
 User-agent: Bingbot
 Disallow: /
 
-User-agent: Slurp   # Yahoo
+User-agent: Slurp
 Disallow: /
 
 User-agent: DuckDuckBot

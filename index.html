@@ -16,6 +16,57 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     crossorigin="anonymous" />
   <style>
+    /* 首屏加载背景 - 渐变背景替代纯黑色 */
+    #root {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* 加载动画 */
+    .loading-spinner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(59, 130, 246, 0.2);
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #60a5fa;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+
+    /* React 加载完成后隐藏加载动画 */
+    #root:not(:empty) ~ .loading-spinner {
+      display: none;
+    }
+
     .bg-gradient-to-b {
       background-color: rgb(0 0 0 / 46%) !important;
       background-image: none !important;
@@ -46,12 +97,17 @@
       animation: zoomOut 1s ease-in-out forwards;
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-CrRcdJP6.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-BhLhsKl5.css">
+  <script type="module" crossorigin src="./assets/index-BLSldX_K.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-YiSyZ1Z-.css">
 </head>
 
 <body>
-  <div id="root" style="background-color: #000000;"></div>
+  <div id="root"></div>
+  <!-- 加载动画 - 当 React 应用加载时显示 -->
+  <div class="loading-spinner">
+    <div class="spinner"></div>
+    <div class="loading-text">加载中...</div>
+  </div>
 </body>
 
 </html>
